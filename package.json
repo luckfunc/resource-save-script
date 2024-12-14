@@ -1,0 +1,17 @@
+{
+  "name": "resource-save-script",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "HTTP server with auto-download capability",
+  "bin": {
+    "h": "./index.js"
+  },
+  "dependencies": {
+    "http-server": "^14.1.1"
+  }
+}
