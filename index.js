@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -38,7 +40,7 @@ function downloadFile(url, filePath) {
 
 	ensureDirectoryExists(filePath);
 
-	// 如果文件已存在，跳过下载
+	// 如果文件已存��，跳过下载
 	if (fs.existsSync(filePath)) {
 		console.log(`File already exists: ${filePath}`);
 		return;
