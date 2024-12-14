@@ -37,10 +37,9 @@ function ensureDirectoryExists(filePath) {
 
 // 下载文件的函数
 function downloadFile(url, filePath) {
-
 	ensureDirectoryExists(filePath);
 
-	// 如果文件已存��，跳过下载
+	// 如果文件已存在，跳过下载
 	if (fs.existsSync(filePath)) {
 		console.log(`File already exists: ${filePath}`);
 		return;
