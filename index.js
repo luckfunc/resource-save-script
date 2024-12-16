@@ -62,21 +62,25 @@ function downloadFile(url, filePath) {
 server.stdout.on('data', (data) => {
 	const output = data.toString();
 
+	// 定义正则表达式，支持任意文件后缀
+	const regex = /"GET (\/.*?\.[a-zA-Z0-9]+)" Error \(404\):/g;
+
 	// 使用正则表达式匹配包含 404 错误的行并提取路径
-	const match = output.match(/GET\s+([^\s]+)\s+Error\s+\(404\)/);
+	const matches = [...output.matchAll(regex)];
+	if (matches.length > 0) {
+		matches.forEach((match) => {
+			const missingFile = match[1].replace(/"/g, '');  // 移除引号
+			console.log('Missing file:', missingFile);
 
-	if (match) {
-		const missingFile = match[1].replace(/"/g, '');  // 移除引号
-		console.log('Missing file:', missingFile);
+			// 构建完整的本地文件路径（从项目根目录开始）
+			const localPath = path.join(process.cwd(), missingFile);
 
-		// 构建完整的本地文件路径（从项目根目录开始）
-		const localPath = path.join(process.cwd(), missingFile);
+			// 使用命令行传入的baseUrl构建下载URL
+			const downloadUrl = `${baseUrl}${missingFile}`;
 
-		// 使用命令行传入的baseUrl构建下载URL
-		const downloadUrl = `${baseUrl}${missingFile}`;
-
-		// 下载文件
-		downloadFile(downloadUrl, localPath);
+			// 下载文件
+			downloadFile(downloadUrl, localPath);
+		});
 	}
 });
 
