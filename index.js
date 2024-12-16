@@ -36,7 +36,7 @@ function ensureDirectoryExists(filePath) {
 }
 
 // 下载文件的函数
-function downloadFile(url, filePath) {
+function downloadFile(url, filePath, retryCount = 3) {
 	ensureDirectoryExists(filePath);
 
 	// 如果文件已存在，跳过下载
@@ -46,16 +46,81 @@ function downloadFile(url, filePath) {
 	}
 
 	const file = fs.createWriteStream(filePath);
-	https.get(url, response => {
-		response.pipe(file);
-		file.on('finish', () => {
+	let fileSize = 0;
+	let currentRetry = 0;
+
+	const startDownload = () => {
+		fileSize = 0; // 重置文件大小计数
+		
+		https.get(url, response => {
+			// 检查响应状态码
+			if (response.statusCode !== 200) {
+				file.close();
+				fs.unlink(filePath, () => {});
+				if (currentRetry < retryCount) {
+					currentRetry++;
+					console.log(`Retrying download (${currentRetry}/${retryCount}) for ${filePath} due to HTTP status ${response.statusCode}`);
+					startDownload();
+				} else {
+					console.error(`Failed to download ${filePath}: HTTP Status ${response.statusCode} after ${retryCount} retries`);
+				}
+				return;
+			}
+
+			response.on('data', (chunk) => {
+				fileSize += chunk.length;
+			});
+
+			response.pipe(file);
+
+			file.on('finish', () => {
+				file.close(() => {
+					// 检查文件大小
+					if (fileSize === 0) {
+						fs.unlink(filePath, () => {
+							if (currentRetry < retryCount) {
+								currentRetry++;
+								console.log(`Retrying download (${currentRetry}/${retryCount}) for ${filePath} due to empty file`);
+								startDownload();
+							} else {
+								console.error(`Failed to download ${filePath}: File is empty after ${retryCount} retries`);
+							}
+						});
+					} else {
+						console.log(`Downloaded: ${filePath} (${fileSize} bytes)`);
+					}
+				});
+			});
+		}).on('error', err => {
 			file.close();
-			console.log(`Downloaded: ${filePath}`);
+			fs.unlink(filePath, () => {
+				if (currentRetry < retryCount) {
+					currentRetry++;
+					console.log(`Retrying download (${currentRetry}/${retryCount}) for ${filePath} due to error: ${err.message}`);
+					startDownload();
+				} else {
+					console.error(`Download failed for ${filePath} after ${retryCount} retries:`, err.message);
+				}
+			});
 		});
-	}).on('error', err => {
-		fs.unlink(filePath, () => { }); // 删除未完成的文件
-		console.error(`Download failed for ${filePath}:`, err.message);
+	};
+
+	// 添加文件写入错误处理
+	file.on('error', err => {
+		file.close();
+		fs.unlink(filePath, () => {
+			if (currentRetry < retryCount) {
+				currentRetry++;
+				console.log(`Retrying download (${currentRetry}/${retryCount}) for ${filePath} due to file write error: ${err.message}`);
+				startDownload();
+			} else {
+				console.error(`File write error for ${filePath} after ${retryCount} retries:`, err.message);
+			}
+		});
 	});
+
+	// 开始首次下载
+	startDownload();
 }
 
 // 获取标准输出
