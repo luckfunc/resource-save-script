@@ -1,14 +1,32 @@
 {
   "name": "resource-save-script",
   "version": "1.0.6",
-  "main": "index.js",
-  "author": "",
-  "license": "ISC",
   "description": "HTTP server with auto-download capability",
+  "homepage": "https://github.com/luckfunc/resource-save-script#readme",
+  "bugs": {
+    "url": "https://github.com/luckfunc/resource-save-script/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luckfunc/resource-save-script.git"
+  },
+  "funding": "https://github.com/sponsors/luckfunc",
+  "license": "ISC",
+  "author": "",
+  "main": "index.js",
   "bin": {
     "h": "./index.js"
   },
+  "scripts": {
+    "ci:eslint": "eslint -f json src -o ./.ci/eslint.json",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
+  },
   "dependencies": {
     "http-server": "^14.1.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.34.0",
+    "eslint-config-ali": "^16.5.0"
   }
 }
