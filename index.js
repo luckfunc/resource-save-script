@@ -86,7 +86,7 @@ userInputReader.question(`${promptArrow}${promptLabel}请输入资源所在的�
   console.log(`${promptArrow}${promptLabel}脚本将会自动从 ${promptValue}${baseUrl}${promptLabel} 下载任何缺失的资源。`);
   console.log('--------------------------------------------------------\n');
 
-  const httpServerProcess = exec(`http-server -p ${port}`);
+  const httpServerProcess = exec(`npx http-server -p ${port}`);
 
   httpServerProcess.stdout.on('data', async (data) => {
     const output = data.toString();
