@@ -1,6 +1,6 @@
 {
   "name": "resource-save-script",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "HTTP server with auto-download capability",
   "homepage": "https://github.com/luckfunc/resource-save-script#readme",
   "bugs": {
